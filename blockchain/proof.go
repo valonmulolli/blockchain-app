@@ -10,7 +10,18 @@ import (
 	"math/big"
 )
 
-const MiningDifficulty = 18
+// Take the data from the block
+
+// create a counter (nonce) which starts at 0
+
+// create a hash of the data plus the counter
+
+// check the hash to see if it meets a set of requirements
+
+// Requirements:
+// The First few bytes must contain 0s
+
+const Difficulty = 18
 
 type ProofOfWork struct {
 	Block  *Block
@@ -19,7 +30,7 @@ type ProofOfWork struct {
 
 func NewProof(b *Block) *ProofOfWork {
 	target := big.NewInt(1)
-	target.Lsh(target, uint(256-MiningDifficulty))
+	target.Lsh(target, uint(256-Difficulty))
 
 	pow := &ProofOfWork{b, target}
 
@@ -30,18 +41,20 @@ func (pow *ProofOfWork) InitData(nonce int) []byte {
 	data := bytes.Join(
 		[][]byte{
 			pow.Block.PrevHash,
-			pow.Block.Hash,
+			pow.Block.Data,
 			ToHex(int64(nonce)),
-			ToHex(int64(MiningDifficulty)),
+			ToHex(int64(Difficulty)),
 		},
 		[]byte{},
 	)
+
 	return data
 }
 
 func (pow *ProofOfWork) Run() (int, []byte) {
 	var intHash big.Int
 	var hash [32]byte
+
 	nonce := 0
 
 	for nonce < math.MaxInt64 {
@@ -56,6 +69,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 		} else {
 			nonce++
 		}
+
 	}
 	fmt.Println()
 
@@ -78,6 +92,9 @@ func ToHex(num int64) []byte {
 	err := binary.Write(buff, binary.BigEndian, num)
 	if err != nil {
 		log.Panic(err)
+
 	}
+
 	return buff.Bytes()
 }
+
